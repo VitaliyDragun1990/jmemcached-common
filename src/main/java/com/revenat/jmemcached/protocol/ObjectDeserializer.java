@@ -1,5 +1,7 @@
 package com.revenat.jmemcached.protocol;
 
+import java.util.Optional;
+
 /**
  * Responsible for deserializing any kind of object from byte array. This
  * interface represents technology-agnostic contract, which means that concrete
@@ -14,7 +16,7 @@ public interface ObjectDeserializer {
 	 * Deserializes object from array of bytes.
 	 * 
 	 * @param data array of bytes to deserialize object from
-	 * @return deserialized object
+	 * @return {@link Optional} with result of the deserializing operation.
 	 */
-	Object fromByteArray(byte[] data);
+	Optional<Object> fromByteArray(byte[] data);
 }

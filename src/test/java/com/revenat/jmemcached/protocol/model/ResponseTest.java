@@ -31,9 +31,26 @@ public class ResponseTest {
 		Response.empty(null);
 	}
 	
-	@Test(expected = NullPointerException.class)
-	public void throwsNullPointerExceptionIfCreatedWithNullData() throws Exception {
-		Response.withData(Status.GOTTEN, null);
+	@Test
+	public void containsNoDataIfCreatedWithNullData() throws Exception {
+		response = Response.withData(Status.GOTTEN, null);
+		
+		assertThat(response.hasData(), is(false));
+		assertThat(response.getData(), equalTo(new byte[0]));
 	}
-
+	
+	@Test
+	public void returnsStringRepresentationWithStatusName() throws Exception {
+		response = Response.empty(Status.CLEARED);
+		
+		assertThat(response.toString(), containsString(response.getStatus().name()));
+	}
+	
+	@Test
+	public void stringRepresentationContainsDataLengthIfAny() throws Exception {
+		response = Response.withData(Status.GOTTEN, DATA);
+		
+		assertThat(response.toString(), containsString(String.format("%s [%d bytes]",
+				response.getStatus().name(), DATA.length)));
+	}
 }

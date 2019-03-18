@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 /**
- * This immutable component represents protocol's request.
+ * This immutable component represents protocol's request package.
  * 
  * @author Vitaly Dragun
  *
@@ -33,6 +33,7 @@ public class Request extends AbstractPackage {
 	 * @throws NullPointerException if provided {@code key} is {@code null}
 	 */
 	public static Request get(String key) {
+		requireNonNull(key, KEY_NOT_NULL_MESSAGE);
 		return new Request(Command.GET, key);
 	}
 
@@ -43,6 +44,7 @@ public class Request extends AbstractPackage {
 	 * @throws NullPointerException if provided {@code key} is {@code null}
 	 */
 	public static Request remove(String key) {
+		requireNonNull(key, KEY_NOT_NULL_MESSAGE);
 		return new Request(Command.REMOVE, key);
 	}
 
@@ -55,6 +57,7 @@ public class Request extends AbstractPackage {
 	 *                              is {@code null}
 	 */
 	public static Request put(String key, byte[] data) {
+		requireNonNull(key, KEY_NOT_NULL_MESSAGE);
 		return new Request(Command.PUT, key, data);
 	}
 
@@ -66,37 +69,30 @@ public class Request extends AbstractPackage {
 	 * @param data data we want to put
 	 * @param ttl  represents date in milliseconds when data with specified key
 	 *             should be automatically removed
-	 * @throws NullPointerException if either provided {@code key} or {@code data}
-	 *                              is {@code null}
+	 * @throws NullPointerException if provided {@code key} is {@code null}
 	 */
 	public static Request put(String key, byte[] data, long ttl) {
+		requireNonNull(key, KEY_NOT_NULL_MESSAGE);
 		return new Request(Command.PUT, key, data, ttl);
 	}
 
-	protected Request(Command command, String key, byte[] data, Long ttl) {
+	public Request(Command command, String key, byte[] data, Long ttl) {
 		super(data);
-		this.key = requireNonNull(key, KEY_NOT_NULL_MESSAGE);
-		this.command = command;
+		this.command = requireNonNull(command, "command can not be null");
+		this.key = key;
 		this.ttl = ttl;
 	}
 
-	protected Request(Command command, String key, byte[] data) {
-		super(data);
-		this.key = requireNonNull(key, KEY_NOT_NULL_MESSAGE);
-		this.command = command;
-		this.ttl = null;
+	public Request(Command command, String key, byte[] data) {
+		this(command, key, data, null);
 	}
 
-	protected Request(Command command, String key) {
-		this.key = requireNonNull(key, KEY_NOT_NULL_MESSAGE);
-		this.command = command;
-		this.ttl = null;
+	public Request(Command command, String key) {
+		this(command, key, null);
 	}
 
-	protected Request(Command command) {
-		this.command = command;
-		this.key = null;
-		this.ttl = null;
+	public Request(Command command) {
+		this(command, null);
 	}
 
 	public String getKey() {
@@ -130,7 +126,8 @@ public class Request extends AbstractPackage {
 			builder.append("=").append(getData().length).append(" bytes");
 		}
 		if (hasTtl()) {
-			builder.append(" (").append(LocalDateTime.ofInstant(Instant.ofEpochMilli(ttl), ZoneId.systemDefault())).append(')');
+			builder.append(" (").append(LocalDateTime.ofInstant(Instant.ofEpochMilli(ttl), ZoneId.systemDefault()))
+					.append(')');
 		}
 
 		return builder.toString();

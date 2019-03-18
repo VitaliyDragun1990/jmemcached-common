@@ -1,10 +1,7 @@
 package com.revenat.jmemcached.protocol.model;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -25,6 +22,10 @@ public class RequestTest {
 	public void createsClearRequest() throws Exception {
 		request = Request.clear();
 
+		assertClear(request);
+	}
+
+	private static void assertClear(Request request) {
 		assertThat(request.getCommand(), equalTo(Command.CLEAR));
 		assertFalse("CLEAR request should not contain key", request.hasKey());
 		assertFalse("CLEAR request should not contain ttl", request.hasTtl());
@@ -35,6 +36,10 @@ public class RequestTest {
 	public void createsGetRequest() throws Exception {
 		request = Request.get(KEY);
 
+		assertGet(request);
+	}
+
+	private static void assertGet(Request request) {
 		assertThat(request.getCommand(), equalTo(Command.GET));
 		assertTrue("GET request should contain a key", request.hasKey());
 		assertThat(request.getKey(), equalTo(KEY));
@@ -46,6 +51,10 @@ public class RequestTest {
 	public void createsRemoveRequest() throws Exception {
 		request = Request.remove(KEY);
 
+		assertCreate(request);
+	}
+
+	private static void assertCreate(Request request) {
 		assertThat(request.getCommand(), equalTo(Command.REMOVE));
 		assertTrue("REMOVE request should contain a key", request.hasKey());
 		assertThat(request.getKey(), equalTo(KEY));
@@ -57,6 +66,10 @@ public class RequestTest {
 	public void createsPutRequestWithoutTtl() throws Exception {
 		request = Request.put(KEY, DATA);
 
+		assertPutWithoutTtl(request);
+	}
+
+	private static void assertPutWithoutTtl(Request request) {
 		assertThat(request.getCommand(), equalTo(Command.PUT));
 		assertTrue("PUT request should contain a key", request.hasKey());
 		assertTrue("PUT request should contain a data", request.hasData());
@@ -69,6 +82,10 @@ public class RequestTest {
 	public void createsPutRequestWithTtl() throws Exception {
 		request = Request.put(KEY, DATA, TTL);
 
+		assertPutWithTtl(request);
+	}
+
+	private static void assertPutWithTtl(Request request) {
 		assertThat(request.getCommand(), equalTo(Command.PUT));
 		assertTrue("PUT request should contain a key", request.hasKey());
 		assertTrue("PUT request should contain a data", request.hasData());
@@ -83,13 +100,16 @@ public class RequestTest {
 		Request.get(null);
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void throwsNullPointerExceptionIfCreatedWithNullData() throws Exception {
-		Request.put(KEY, null);
+	@Test
+	public void containsNoDataIfCreatedWithNullData() throws Exception {
+		request = Request.put(KEY, null);
+		
+		assertThat(request.hasData(), equalTo(false));
+		assertThat(request.getData(), equalTo(new byte[0]));
 	}
 
 	@Test
-	public void returnsStringrepresentationWithCommandName() throws Exception {
+	public void returnsStringRepresentationWithCommandName() throws Exception {
 		request = Request.clear();
 
 		String stringRequest = request.toString();

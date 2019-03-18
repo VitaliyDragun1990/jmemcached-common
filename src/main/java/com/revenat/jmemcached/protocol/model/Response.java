@@ -2,6 +2,12 @@ package com.revenat.jmemcached.protocol.model;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * This immutable component represents protocol's response package.
+ * 
+ * @author Vitaly Dragun
+ *
+ */
 public class Response extends AbstractPackage {
 	private final Status status;
 
@@ -40,6 +46,17 @@ public class Response extends AbstractPackage {
 
 	public Status getStatus() {
 		return this.status;
+	}
+	
+	@Override
+	public String toString() {
+		String s = status.name();
+		
+		if (hasData()) {
+			s += String.format(" [%d bytes]", getData().length);
+		}
+		
+		return s;
 	}
 
 }

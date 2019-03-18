@@ -1,7 +1,5 @@
 package com.revenat.jmemcached.protocol.model;
 
-import static java.util.Objects.requireNonNull;
-
 import java.util.Arrays;
 
 /**
@@ -15,7 +13,7 @@ abstract class AbstractPackage {
 	private final byte[] data;
 
 	AbstractPackage(byte[] data) {
-		this.data = requireNonNull(data,  "data can not be null");
+		this.data = data != null ? data : new byte[0];
 	}
 
 	AbstractPackage() {
@@ -26,7 +24,7 @@ abstract class AbstractPackage {
 		return Arrays.copyOf(data, data.length);
 	}
 	
-	public boolean hasData() {
+	public final boolean hasData() {
 		return data.length > 0;
 	}
 }
