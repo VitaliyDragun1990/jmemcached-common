@@ -19,7 +19,7 @@ public enum Command {
 
 	private byte code;
 
-	private Command(int code) {
+	Command(int code) {
 		this.code = (byte) code;
 	}
 

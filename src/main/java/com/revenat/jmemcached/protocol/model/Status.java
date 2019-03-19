@@ -24,7 +24,7 @@ public enum Status {
 
 	private byte code;
 
-	private Status(int code) {
+	Status(int code) {
 		this.code = (byte) code;
 	}
 	

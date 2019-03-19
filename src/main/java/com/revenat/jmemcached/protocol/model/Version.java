@@ -27,7 +27,7 @@ public enum Version {
 	 */
 	private byte low;
 
-	private Version(int high, int low) {
+	Version(int high, int low) {
 		this.high = (byte) (high & 0x7); // retains only 3 lower bits of the byte
 		this.low = (byte) (low & 0xF); // retains only 4 lower bits of the byte
 	}
