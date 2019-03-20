@@ -25,7 +25,7 @@ import com.revenat.jmemcached.protocol.model.Request;
 import com.revenat.jmemcached.protocol.model.Version;
 
 public class RequestConverterTest {
-	private static final int TTL = 1000;
+	private static final long TTL = 1000;
 	private static final byte[] DATA = new byte[] {1, 2, 3};
 	private static final String KEY = "Key";
 	private static final byte SUPPORTED_VERSION_BYTECODE = Version.VERSION_1_0.getByteCode();

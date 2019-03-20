@@ -53,4 +53,36 @@ public class ResponseTest {
 		assertThat(response.toString(), containsString(String.format("%s [%d bytes]",
 				response.getStatus().name(), DATA.length)));
 	}
+	
+	@Test
+	public void equalsToAnotherResponseWithSameDataAndStatus() throws Exception {
+		Response responseA = Response.withData(Status.GOTTEN, DATA);
+		Response responseB = Response.withData(Status.GOTTEN, DATA);
+		
+		assertEquals("Responses should be equal", responseA, responseB);
+	}
+	
+	@Test
+	public void notEqualsToAnotherResponseWithSameStatusButDIfferentData() throws Exception {
+		Response responseA = Response.withData(Status.GOTTEN, DATA);
+		Response responseB = Response.withData(Status.GOTTEN, null);
+		
+		assertNotEquals("Responses should not be equal", responseA, responseB);
+	}
+	
+	@Test
+	public void notEqualsToAnotherResponseWithSametDataButDifferentStatus() throws Exception {
+		Response responseA = Response.withData(Status.GOTTEN, DATA);
+		Response responseB = Response.withData(Status.REPLACED, DATA);
+		
+		assertNotEquals("Responses should not be equal", responseA, responseB);
+	}
+	
+	@Test
+	public void equalResponsesHaveEqualHashCodes() throws Exception {
+		Response responseA = Response.withData(Status.GOTTEN, DATA);
+		Response responseB = Response.withData(Status.GOTTEN, DATA);
+		
+		assertThat(responseA.hashCode(), equalTo(responseB.hashCode()));
+	}
 }

@@ -2,9 +2,7 @@ package com.revenat.jmemcached.protocol.model;
 
 import static java.util.Objects.requireNonNull;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.Objects;
 
 /**
  * This immutable component represents protocol's request package.
@@ -67,11 +65,11 @@ public class Request extends AbstractPackage {
 	 * 
 	 * @param key  value represents key for the data we want to put
 	 * @param data data we want to put
-	 * @param ttl  represents date in milliseconds when data with specified key
+	 * @param ttl  represents duration in milliseconds after which data with specified key
 	 *             should be automatically removed
 	 * @throws NullPointerException if provided {@code key} is {@code null}
 	 */
-	public static Request put(String key, byte[] data, long ttl) {
+	public static Request put(String key, byte[] data, Long ttl) {
 		requireNonNull(key, KEY_NOT_NULL_MESSAGE);
 		return new Request(Command.PUT, key, data, ttl);
 	}
@@ -114,6 +112,23 @@ public class Request extends AbstractPackage {
 	public boolean hasTtl() {
 		return ttl != null;
 	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(command, key, ttl);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Request other = (Request) obj;
+		return command == other.command && Objects.equals(key, other.key) && Objects.equals(ttl, other.ttl);
+	}
 
 	@Override
 	public String toString() {
@@ -126,8 +141,8 @@ public class Request extends AbstractPackage {
 			builder.append("=").append(getData().length).append(" bytes");
 		}
 		if (hasTtl()) {
-			builder.append(" (").append(LocalDateTime.ofInstant(Instant.ofEpochMilli(ttl), ZoneId.systemDefault()))
-					.append(')');
+			builder.append(" (").append(String.format("time-to-live=%d milliseconds", ttl))
+			.append(')');
 		}
 
 		return builder.toString();

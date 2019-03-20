@@ -3,8 +3,6 @@ package com.revenat.jmemcached.protocol.model;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -135,11 +133,27 @@ public class RequestTest {
 	public void returnsStringRepresentationWithTtlIfAny() throws Exception {
 		request = Request.put(KEY, DATA, TTL);
 
-		assertThat(request.toString(), containsString(calculateDateUntilDataWillBeStored(TTL)));
+		assertThat(request.toString(), containsString(calculateTtl(TTL)));
+	}
+	
+	@Test
+	public void equalsToAnotherRequestWithEqualsCommandKeyAndTtl() throws Exception {
+		Request requestA = Request.put(KEY, DATA, TTL);
+		Request requestB = Request.put(KEY, DATA, TTL);
+		
+		assertEquals("Requests should be equal",requestA, requestB);
+	}
+	
+	@Test
+	public void equalRequestsHaveEqualHashCodes() throws Exception {
+		Request requestA = Request.clear();
+		Request requestB = Request.clear();
+		
+		assertThat(requestA.hashCode(), equalTo(requestB.hashCode()));
 	}
 
-	private static String calculateDateUntilDataWillBeStored(long ttl) {
-		return LocalDateTime.ofInstant(Instant.ofEpochMilli(ttl), ZoneId.systemDefault()).toString();
+	private static String calculateTtl(long ttl) {
+		return String.format("time-to-live=%d milliseconds", ttl);
 	}
 
 }

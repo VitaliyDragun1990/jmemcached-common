@@ -2,6 +2,8 @@ package com.revenat.jmemcached.protocol.model;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Objects;
+
 /**
  * This immutable component represents protocol's response package.
  * 
@@ -49,6 +51,23 @@ public class Response extends AbstractPackage {
 	}
 	
 	@Override
+	public int hashCode() {
+		return Objects.hash(status);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Response other = (Response) obj;
+		return status == other.status;
+	}
+
+	@Override
 	public String toString() {
 		String s = status.name();
 		
@@ -58,5 +77,4 @@ public class Response extends AbstractPackage {
 		
 		return s;
 	}
-
 }
