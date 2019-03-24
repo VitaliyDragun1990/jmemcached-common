@@ -2,8 +2,6 @@ package com.revenat.jmemcached.protocol.model;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Objects;
-
 /**
  * This immutable component represents protocol's response package.
  * 
@@ -21,7 +19,8 @@ public class Response extends AbstractPackage {
 	 * @throws NullPointerException if provided {@code status} is {@code null}
 	 */
 	public static Response empty(Status status) {
-		return new Response(status);
+		requireNonNull(status, "status can not be null");
+		return new Response(status, null);
 	}
 
 	/**
@@ -34,43 +33,23 @@ public class Response extends AbstractPackage {
 	 *                              {@code data} is {@code null}
 	 */
 	public static Response withData(Status status, byte[] data) {
+		requireNonNull(status, "status can not be null");
+		requireNonNull(data, "data can not be null");
 		return new Response(status, data);
 	}
 
 	protected Response(Status status, byte[] data) {
 		super(data);
-		this.status = requireNonNull(status, "status can not be null");
-	}
-
-	protected Response(Status status) {
-		this.status = requireNonNull(status, "status can not be null");
+		this.status = status;
 	}
 
 	public Status getStatus() {
 		return this.status;
 	}
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(status);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Response other = (Response) obj;
-		return status == other.status;
-	}
 
 	@Override
 	public String toString() {
 		String s = status.name();
-		
 		if (hasData()) {
 			s += String.format(" [%d bytes]", getData().length);
 		}

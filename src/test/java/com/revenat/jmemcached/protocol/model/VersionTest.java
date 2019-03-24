@@ -12,37 +12,37 @@ public class VersionTest {
 	private static final byte BYTE_0 = (byte) 0b00000000;
 
 	@Test
-	public void returnsVersionOnePointZeroForByteValue16() throws Exception {
+	public void shouldReturnVersionOnePointZeroForByteValue16() throws Exception {
 		Version onePointZero = Version.valueOf(BYTE_16);
 		
 		assertThat(onePointZero, equalTo(Version.VERSION_1_0));
 	}
 	
 	@Test
-	public void returnsVersionZeroPointZeroForByteValue0() throws Exception {
+	public void shouldReturnVersionZeroPointZeroForByteValue0() throws Exception {
 		Version onePointZero = Version.valueOf(BYTE_0);
 		
 		assertThat(onePointZero, equalTo(Version.VERSION_0_0));
 	}
 	
 	@Test(expected = JMemcachedException.class)
-	public void throwsJMemcachedExceptionIfNoVersionForByteValue() throws Exception {
+	public void shouldNotAllowToGetVersionForInvalidValue() throws Exception {
 		byte unsupportedByteValue = (byte) 0b01111111;
 		Version.valueOf(unsupportedByteValue);
 	}
 	
 	@Test
-	public void returnsByteValue16ForVersionOnePointZero() throws Exception {
+	public void shouldReturnByteValue16ForVersionOnePointZero() throws Exception {
 		assertThat(Version.VERSION_1_0.getByteCode(), equalTo(BYTE_16));
 	}
 	
 	@Test
-	public void returnsByteValue0ForVersionZeroPointZero() throws Exception {
+	public void shouldReturnByteValue0ForVersionZeroPointZero() throws Exception {
 		assertThat(Version.VERSION_0_0.getByteCode(), equalTo(BYTE_0));
 	}
 	
 	@Test
-	public void returnsStringRepresentationOfTheVersion() throws Exception {
+	public void shouldReturnStringRepresentationOfTheVersion() throws Exception {
 		String version = Version.VERSION_1_0.toString();
 		
 		assertThat(version, equalTo("1.0"));

@@ -34,7 +34,7 @@ public class ObjectConverterTest {
 	}
 
 	@Test
-	public void throwsExceptionIfTryToSerializeObjectThatDoesNotImplementSerializable() throws Exception {
+	public void shouldNotAllowToSerializeUnserializableObject() throws Exception {
 		expected.expect(JMemcachedException.class);
 		expected.expectMessage(containsString(String.format("Class %s should implement java.io.Serializable",
 				UNSERIALIZABLE.getClass().getName())));
@@ -43,19 +43,22 @@ public class ObjectConverterTest {
 	}
 
 	@Test
-	public void returnsEmptyArrayIfSerialiseNull() throws Exception {
-		assertThat(converter.toByteArray(null).length, is(0));
+	public void shouldNotAllowToSerializeNull() throws Exception {
+		expected.expect(NullPointerException.class);
+		expected.expectMessage(containsString("Object to serialize can not be null"));
+		
+		converter.toByteArray(null);
 	}
 
 	@Test
-	public void returnsArrayWithSerializedObjectData() throws Exception {
+	public void shouldAllowToSerializeObject() throws Exception {
 		byte[] data = converter.toByteArray(SERIALIZABLE);
 
 		assertThat(data, equalTo(serializeToArray(SERIALIZABLE)));
 	}
 
 	@Test
-	public void throwsExceptionIfCanNotSerializeObject() throws Exception {
+	public void shouldThrowExceptionIfSerializationProcessFailed() throws Exception {
 		expected.expect(JMemcachedException.class);
 		expected.expectMessage(containsString("Can not serialize object into byte array"));
 		expected.expectCause(isA(IOException.class));
@@ -64,38 +67,30 @@ public class ObjectConverterTest {
 	}
 
 	@Test
-	public void returnsEmptyOptionalIfTryToDeserializeFromEmptyArray() throws Exception {
+	public void shouldReturnEmptyOptionalIfDeserializeEmptyData() throws Exception {
 		Optional<Object> optional = converter.fromByteArray(new byte[0]);
 
 		assertFalse("Optional should be empty", optional.isPresent());
 	}
 
 	@Test
-	public void returnsEmptyOptionalIfTryToDeserializeFromNullArray() throws Exception {
+	public void shouldReturnEmptyOptionalIfDeserializeNull() throws Exception {
 		Optional<Object> optional = converter.fromByteArray(null);
 
 		assertFalse("Optional should be empty", optional.isPresent());
 	}
 
 	@Test
-	public void returnsOptionalWithDeserializedObject() throws Exception {
+	public void shouldAllowToGetOptionalWithDeserializedObject() throws Exception {
 		byte[] data = serializeToArray(SERIALIZABLE);
 
 		Optional<Object> optional = converter.fromByteArray(data);
-		assertTrue("Optional should contain an object", optional.isPresent());
-	}
-
-	@Test
-	public void deserializesObjectFromByteArray() throws Exception {
-		byte[] data = serializeToArray(SERIALIZABLE);
-
-		Thing deserialized = (Thing) converter.fromByteArray(data).get();
-
+		Object deserialized = optional.get();
 		assertThat(deserialized, equalTo(SERIALIZABLE));
 	}
 	
 	@Test
-	public void throwsExceptionIfTryToDeserializeFromInvalidData() throws Exception {
+	public void shouldNotAllowToDeserializeInvalidData() throws Exception {
 		byte[] invalidData = new byte[] {0, 0, 0};
 		expected.expect(JMemcachedException.class);
 		expected.expectMessage(containsString("Can not deserialize object from byte array"));

@@ -13,143 +13,112 @@ public class RequestTest {
 	private static final long TTL = ZonedDateTime.now(ZoneId.systemDefault()).plusHours(1).toInstant().toEpochMilli();
 	private static final byte[] DATA = new byte[] { 1, 2, 3 };
 	private static final String KEY = "key";
-	
+
 	private Request request;
 
 	@Test
-	public void createsClearRequest() throws Exception {
-		request = Request.clear();
+	public void shouldAllowToCreateWithCommandOnly() throws Exception {
+		request = Request.empty(Command.CLEAR);
 
-		assertClear(request);
+		assertRequestWithCommandOnly(request);
 	}
 
-	private static void assertClear(Request request) {
-		assertThat(request.getCommand(), equalTo(Command.CLEAR));
-		assertFalse("CLEAR request should not contain key", request.hasKey());
-		assertFalse("CLEAR request should not contain ttl", request.hasTtl());
-		assertFalse("CLEAR request should not contain any data", request.hasData());
-	}
-
-	@Test
-	public void createsGetRequest() throws Exception {
-		request = Request.get(KEY);
-
-		assertGet(request);
-	}
-
-	private static void assertGet(Request request) {
-		assertThat(request.getCommand(), equalTo(Command.GET));
-		assertTrue("GET request should contain a key", request.hasKey());
-		assertThat(request.getKey(), equalTo(KEY));
-		assertFalse("GET request should not contain ttl", request.hasTtl());
-		assertFalse("GET request should not contain any data", request.hasData());
+	private static void assertRequestWithCommandOnly(Request request) {
+		assertThat(request.getCommand(), notNullValue());
+		assertFalse("Empty request should not contain key", request.hasKey());
+		assertFalse("Empty request should not contain ttl", request.hasTtl());
+		assertFalse("Empty request should not contain any data", request.hasData());
 	}
 
 	@Test
-	public void createsRemoveRequest() throws Exception {
-		request = Request.remove(KEY);
+	public void shouldAllowToCreateWithCommandAndKey() throws Exception {
+		request = Request.withKey(Command.GET, KEY);
 
-		assertCreate(request);
+		assertRequestWithCommandAndKey(request);
 	}
 
-	private static void assertCreate(Request request) {
-		assertThat(request.getCommand(), equalTo(Command.REMOVE));
-		assertTrue("REMOVE request should contain a key", request.hasKey());
-		assertThat(request.getKey(), equalTo(KEY));
-		assertFalse("REMOVE request should not contain ttl", request.hasTtl());
-		assertFalse("REMOVE request should not contain any data", request.hasData());
-	}
-
-	@Test
-	public void createsPutRequestWithoutTtl() throws Exception {
-		request = Request.put(KEY, DATA);
-
-		assertPutWithoutTtl(request);
-	}
-
-	private static void assertPutWithoutTtl(Request request) {
-		assertThat(request.getCommand(), equalTo(Command.PUT));
-		assertTrue("PUT request should contain a key", request.hasKey());
-		assertTrue("PUT request should contain a data", request.hasData());
-		assertFalse("PUT request without ttl should not contain ttl", request.hasTtl());
-		assertThat(request.getKey(), equalTo(KEY));
-		assertThat(request.getData(), equalTo(DATA));
+	private static void assertRequestWithCommandAndKey(Request request) {
+		assertThat(request.getCommand(), notNullValue());
+		assertTrue("Requst with only command and key should contain a key", request.hasKey());
+		assertThat(request.getKey(), notNullValue());
+		assertFalse("Requst with only command and key should not contain ttl", request.hasTtl());
+		assertFalse("Requst with only command and key should not contain any data", request.hasData());
 	}
 
 	@Test
-	public void createsPutRequestWithTtl() throws Exception {
-		request = Request.put(KEY, DATA, TTL);
+	public void shouldAllowToCreateRequestWithCommandAndKeyAndData() throws Exception {
+		request = Request.withKeyAndData(Command.PUT, KEY, DATA, null);
 
-		assertPutWithTtl(request);
+		assertRequestWithCommandAndKeyAndData(request);
 	}
 
-	private static void assertPutWithTtl(Request request) {
-		assertThat(request.getCommand(), equalTo(Command.PUT));
-		assertTrue("PUT request should contain a key", request.hasKey());
-		assertTrue("PUT request should contain a data", request.hasData());
-		assertTrue("PUT request with ttl should contain ttl", request.hasTtl());
-		assertThat(request.getKey(), equalTo(KEY));
-		assertThat(request.getData(), equalTo(DATA));
-		assertThat(request.getTtl(), equalTo(TTL));
+	private static void assertRequestWithCommandAndKeyAndData(Request request) {
+		assertThat(request.getCommand(), notNullValue());
+		assertTrue("Request with command, key and data should contain a key", request.hasKey());
+		assertTrue("Request with command, key and data should contain a data", request.hasData());
+		assertThat(request.getKey(), notNullValue());
+		assertThat(request.getData(), notNullValue());
 	}
-
+	
 	@Test(expected = NullPointerException.class)
-	public void throwsNullPointerExceptionIfCreatedWithNullKey() throws Exception {
-		Request.get(null);
+	public void shouldNotAllowToCreateEmptyRequestWithNullCommand() throws Exception {
+		Request.empty(null);
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void shouldNotAllowToCreateCommandAndKeyRequestWithNullCommand() throws Exception {
+		Request.withKey(null, KEY);
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void shouldNotAllowToCreateCommandAndKeyRequestWithNullKey() throws Exception {
+		Request.withKey(Command.GET, null);
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void shouldNotAllowToCreateCommandKeyDataRequestWithNullCommand() throws Exception {
+		Request.withKeyAndData(null, KEY, DATA, 1000L);
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void shouldNotAllowToCreateCommandKeyDataRequestWithNullKey() throws Exception {
+		Request.withKeyAndData(Command.PUT, null, DATA, 1000L);
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void shouldNotAllowToCreateCommandKeyDataRequestWithNullData() throws Exception {
+		Request.withKeyAndData(Command.PUT, KEY, null, 1000L);
 	}
 
-	@Test
-	public void containsNoDataIfCreatedWithNullData() throws Exception {
-		request = Request.put(KEY, null);
-		
-		assertThat(request.hasData(), equalTo(false));
-		assertThat(request.getData(), equalTo(new byte[0]));
-	}
 
 	@Test
-	public void returnsStringRepresentationWithCommandName() throws Exception {
-		request = Request.clear();
+	public void shouldReturnStringnWithCommandName() throws Exception {
+		request = Request.empty(Command.CLEAR);
 
 		String stringRequest = request.toString();
 
-		assertThat(stringRequest, equalTo(Command.CLEAR.name()));
+		assertThat(stringRequest, containsString(Command.CLEAR.name()));
 	}
 
 	@Test
-	public void returnsStringRepresentationWithKeyIfAny() throws Exception {
-		request = Request.get(KEY);
+	public void shouldReturnStringWithKeyIfAny() throws Exception {
+		request = Request.withKey(Command.GET, KEY);
 
 		assertThat(request.toString(), containsString(KEY));
 	}
 
 	@Test
-	public void returnsStringRepresentationWithDataLengthInBytesIfAny() throws Exception {
-		request = Request.put(KEY, DATA);
+	public void shouldReturnStringWithDataLengthInBytesIfAny() throws Exception {
+		request = Request.withKeyAndData(Command.PUT, KEY, DATA, null);
 
-		assertThat(request.toString(), containsString("=" + DATA.length + " bytes"));
+		assertThat(request.toString(), containsString(DATA.length + " bytes"));
 	}
 
 	@Test
-	public void returnsStringRepresentationWithTtlIfAny() throws Exception {
-		request = Request.put(KEY, DATA, TTL);
+	public void shouldReturnStringWithTtlIfAny() throws Exception {
+		request = Request.withKeyAndData(Command.PUT, KEY, DATA, TTL);
 
 		assertThat(request.toString(), containsString(calculateTtl(TTL)));
-	}
-	
-	@Test
-	public void equalsToAnotherRequestWithEqualsCommandKeyAndTtl() throws Exception {
-		Request requestA = Request.put(KEY, DATA, TTL);
-		Request requestB = Request.put(KEY, DATA, TTL);
-		
-		assertEquals("Requests should be equal",requestA, requestB);
-	}
-	
-	@Test
-	public void equalRequestsHaveEqualHashCodes() throws Exception {
-		Request requestA = Request.clear();
-		Request requestB = Request.clear();
-		
-		assertThat(requestA.hashCode(), equalTo(requestB.hashCode()));
 	}
 
 	private static String calculateTtl(long ttl) {

@@ -1,5 +1,7 @@
 package com.revenat.jmemcached.protocol.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -32,9 +34,7 @@ public class ObjectConverter implements ObjectSerializer, ObjectDeserializer {
 	 */
 	@Override
 	public byte[] toByteArray(Object object) {
-		if (object == null) {
-			return new byte[0];
-		}
+		requireNonNull(object, "Object to serialize can not be null");
 		if (!(object instanceof Serializable)) {
 			throw new JMemcachedException(
 					"Class " + object.getClass().getName() + " should implement java.io.Serializable");

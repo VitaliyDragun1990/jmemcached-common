@@ -10,69 +10,69 @@ import com.revenat.jmemcached.exception.JMemcachedException;
 public class StatusTest {
 
 	@Test
-	public void returnsStatusAddedForValueZero() throws Exception {
+	public void shouldReturnStatusAddedForValueZero() throws Exception {
 		assertThat(Status.valueOf((byte) 0), equalTo(Status.ADDED));
 	}
 	
 	@Test
-	public void returnsStatusReplacedForValueOne() throws Exception {
+	public void shouldReturnStatusReplacedForValueOne() throws Exception {
 		assertThat(Status.valueOf((byte) 1), equalTo(Status.REPLACED));
 	}
 	
 	@Test
-	public void returnsStatusGottenForValueTwo() throws Exception {
+	public void shouldReturnStatusGottenForValueTwo() throws Exception {
 		assertThat(Status.valueOf((byte) 2), equalTo(Status.GOTTEN));
 	}
 	
 	@Test
-	public void returnsStatusNotFoundForValueThree() throws Exception {
+	public void shouldReturnStatusNotFoundForValueThree() throws Exception {
 		assertThat(Status.valueOf((byte) 3), equalTo(Status.NOT_FOUND));
 	}
 	
 	@Test
-	public void returnsStatusRemovedForValueFour() throws Exception {
+	public void shouldReturnStatusRemovedForValueFour() throws Exception {
 		assertThat(Status.valueOf((byte) 4), equalTo(Status.REMOVED));
 	}
 
 	@Test
-	public void returnsStatusClearedForValueFive() throws Exception {
+	public void shouldReturnStatusClearedForValueFive() throws Exception {
 		assertThat(Status.valueOf((byte) 5), equalTo(Status.CLEARED));
 	}
 	
 	@Test(expected = JMemcachedException.class)
-	public void throwsJMemcachedExceptionForInvalidValue() throws Exception {
+	public void shouldNotAllowToGetStatusForInvalidValue() throws Exception {
 		byte invalidByteCode = (byte) 10;
 		
 		Status.valueOf(invalidByteCode);
 	}
 	
 	@Test
-	public void returnsByteValueZeroForStatusAdded() throws Exception {
+	public void shouldReturnByteValueZeroForStatusAdded() throws Exception {
 		assertThat(Status.ADDED.getByteCode(), equalTo((byte) 0));
 	}
 	
 	@Test
-	public void returnsByteValueOneForStatusReplaced() throws Exception {
+	public void shouldReturnByteValueOneForStatusReplaced() throws Exception {
 		assertThat(Status.REPLACED.getByteCode(), equalTo((byte) 1));
 	}
 	
 	@Test
-	public void returnsByteValueTwoForStatusGotten() throws Exception {
+	public void shouldReturnByteValueTwoForStatusGotten() throws Exception {
 		assertThat(Status.GOTTEN.getByteCode(), equalTo((byte) 2));
 	}
 	
 	@Test
-	public void returnsByteValueThreeForStatusNotFound() throws Exception {
+	public void shouldReturnByteValueThreeForStatusNotFound() throws Exception {
 		assertThat(Status.NOT_FOUND.getByteCode(), equalTo((byte) 3));
 	}
 	
 	@Test
-	public void returnsByteValueFourForStatusRemoved() throws Exception {
+	public void shouldReturnByteValueFourForStatusRemoved() throws Exception {
 		assertThat(Status.REMOVED.getByteCode(), equalTo((byte) 4));
 	}
 	
 	@Test
-	public void returnsByteValueFiveForStatusCleared() throws Exception {
+	public void shouldReturnByteValueFiveForStatusCleared() throws Exception {
 		assertThat(Status.CLEARED.getByteCode(), equalTo((byte) 5));
 	}
 }

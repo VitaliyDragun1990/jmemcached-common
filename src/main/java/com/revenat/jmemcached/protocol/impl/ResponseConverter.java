@@ -29,11 +29,16 @@ public class ResponseConverter extends AbstractPackageConverter implements Respo
 		dataOutput.writeByte(getVersionByte());
 		dataOutput.writeByte(response.getStatus().getByteCode());
 		dataOutput.writeByte(response.hasData() ? 1 : 0);
+		writeDataIfAny(response, dataOutput);
+		
+		dataOutput.flush();
+	}
+
+	private void writeDataIfAny(Response response, DataOutputStream dataOutput) throws IOException {
 		if (response.hasData()) {
 			dataOutput.writeInt(response.getData().length);
 			dataOutput.write(response.getData());
 		}
-		dataOutput.flush();
 	}
 
 	@Override

@@ -2,8 +2,6 @@ package com.revenat.jmemcached.protocol.model;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Objects;
-
 /**
  * This immutable component represents protocol's request package.
  * 
@@ -12,85 +10,60 @@ import java.util.Objects;
  */
 public class Request extends AbstractPackage {
 	private static final String KEY_NOT_NULL_MESSAGE = "key can not be null";
+	private static final String COMMAND_NOT_NULL_MESSAGE = "command can not be null";
+	private static final String DATA_NOT_NULL_MESSAGE = "data can not be null";
 
 	private final Command command;
 	private final String key;
 	private final Long ttl;
 
 	/**
-	 * Creates CLEAR request
+	 * Creates {@link Request} that contains only specified {@link Command}
+	 * 
+	 * @param command {@link Command} to create a {@link Request} with
+	 * @throws NullPointerException if specified {@code command} is null
 	 */
-	public static Request clear() {
-		return new Request(Command.CLEAR);
+	public static Request empty(Command command) {
+		requireNonNull(command, COMMAND_NOT_NULL_MESSAGE);
+		return new Request(command, null, null, null);
 	}
 
 	/**
-	 * Creates GET request for specified {@code key}
+	 * Creates {@link Request} that contains only specified {@link Command} and
+	 * {@code key}.
 	 * 
-	 * @param key value represents key for the data we want to get
-	 * @throws NullPointerException if provided {@code key} is {@code null}
+	 * @param command {@link Command} to create a {@link Request} with
+	 * @param key string identifier
+	 * @throws NullPointerException if either {@code command} or {@code key} is null
 	 */
-	public static Request get(String key) {
+	public static Request withKey(Command command, String key) {
+		requireNonNull(command, COMMAND_NOT_NULL_MESSAGE);
 		requireNonNull(key, KEY_NOT_NULL_MESSAGE);
-		return new Request(Command.GET, key);
+		return new Request(command, key, null, null);
 	}
-
+	
 	/**
-	 * Creates REMOVE request for specified {@code key}
+	 * Creates {@link Request} that contains required {@link Command},
+	 * {@code key}, {@code data} and optional {@code ttl} parameters.
 	 * 
-	 * @param key value represents key for the data we want to remove
-	 * @throws NullPointerException if provided {@code key} is {@code null}
+	 * @param command {@link Command} to create a {@link Request} with
+	 * @param key string identifier
+	 * @param data data to put into request
+	 * @param ttl optional, represents time-to-live parameter.
+	 * @throws NullPointerException if {@code command}, {@code key} or {@code data} is null
 	 */
-	public static Request remove(String key) {
+	public static Request withKeyAndData(Command command, String key, byte[] data, Long ttl) {
+		requireNonNull(command, COMMAND_NOT_NULL_MESSAGE);
 		requireNonNull(key, KEY_NOT_NULL_MESSAGE);
-		return new Request(Command.REMOVE, key);
+		requireNonNull(data, DATA_NOT_NULL_MESSAGE);
+		return new Request(command, key, data, ttl);
 	}
 
-	/**
-	 * Creates PUT request for {@code data} with specified {@code key}
-	 * 
-	 * @param key  value represents key for the data we want to put
-	 * @param data data we want to put
-	 * @throws NullPointerException if either provided {@code key} or {@code data}
-	 *                              is {@code null}
-	 */
-	public static Request put(String key, byte[] data) {
-		requireNonNull(key, KEY_NOT_NULL_MESSAGE);
-		return new Request(Command.PUT, key, data);
-	}
-
-	/**
-	 * Creates PUT request for {@code data} with specified {@code key} with
-	 * predefined ttl (time to live) parameter.
-	 * 
-	 * @param key  value represents key for the data we want to put
-	 * @param data data we want to put
-	 * @param ttl  represents duration in milliseconds after which data with specified key
-	 *             should be automatically removed
-	 * @throws NullPointerException if provided {@code key} is {@code null}
-	 */
-	public static Request put(String key, byte[] data, Long ttl) {
-		requireNonNull(key, KEY_NOT_NULL_MESSAGE);
-		return new Request(Command.PUT, key, data, ttl);
-	}
-
-	public Request(Command command, String key, byte[] data, Long ttl) {
+	Request(Command command, String key, byte[] data, Long ttl) {
 		super(data);
-		this.command = requireNonNull(command, "command can not be null");
+		this.command = command;
 		this.key = key;
 		this.ttl = ttl;
-	}
-
-	public Request(Command command, String key, byte[] data) {
-		this(command, key, data, null);
-	}
-
-	public Request(Command command, String key) {
-		this(command, key, null);
-	}
-
-	public Request(Command command) {
-		this(command, null);
 	}
 
 	public String getKey() {
@@ -112,23 +85,6 @@ public class Request extends AbstractPackage {
 	public boolean hasTtl() {
 		return ttl != null;
 	}
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(command, key, ttl);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Request other = (Request) obj;
-		return command == other.command && Objects.equals(key, other.key) && Objects.equals(ttl, other.ttl);
-	}
 
 	@Override
 	public String toString() {
@@ -141,8 +97,7 @@ public class Request extends AbstractPackage {
 			builder.append("=").append(getData().length).append(" bytes");
 		}
 		if (hasTtl()) {
-			builder.append(" (").append(String.format("time-to-live=%d milliseconds", ttl))
-			.append(')');
+			builder.append(" (").append(String.format("time-to-live=%d milliseconds", ttl)).append(')');
 		}
 
 		return builder.toString();

@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.revenat.jmemcached.exception.JMemcachedException;
+import com.revenat.jmemcached.protocol.model.Command;
 import com.revenat.jmemcached.protocol.model.Request;
 import com.revenat.jmemcached.protocol.model.Version;
 
@@ -41,8 +42,8 @@ public class RequestConverterTest {
 	}
 	
 	@Test
-	public void writesEmptyRequest() throws Exception {
-		Request request = Request.clear();
+	public void shouldAllowToWriteEmptyRequest() throws Exception {
+		Request request = Request.empty(Command.CLEAR);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		
 		converter.writeTo(output, request);
@@ -51,8 +52,8 @@ public class RequestConverterTest {
 	}
 	
 	@Test
-	public void writesRequestWithKey() throws Exception {
-		Request request = Request.get(KEY);
+	public void shouldAllowToWriteRequestWithKey() throws Exception {
+		Request request = Request.withKey(Command.GET, KEY);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		
 		converter.writeTo(output, request);
@@ -61,8 +62,8 @@ public class RequestConverterTest {
 	}
 	
 	@Test
-	public void writesRequestWithData() throws Exception {
-		Request request = Request.put(KEY, DATA);
+	public void shouldAllowToWriteRequestWithData() throws Exception {
+		Request request = Request.withKeyAndData(Command.PUT, KEY, DATA, null);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		
 		converter.writeTo(output, request);
@@ -71,8 +72,8 @@ public class RequestConverterTest {
 	}
 	
 	@Test
-	public void writesRequestWithTtl() throws Exception {
-		Request request = Request.put(KEY, DATA, TTL);
+	public void shouldAllowToWriteRequestWithTtl() throws Exception {
+		Request request = Request.withKeyAndData(Command.PUT, KEY, DATA, TTL);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		
 		converter.writeTo(output, request);
@@ -81,13 +82,13 @@ public class RequestConverterTest {
 	}
 	
 	@Test
-	public void throwsJMemcachedExceptionIfKeyTooLong() throws Exception {
+	public void shouldNotAllowToWriteRequestWhereKeyHasIllegalLength() throws Exception {
 		String longKey = generateKeyWithLength(130);
 		expected.expect(JMemcachedException.class);
 		expected.expectMessage(containsString(
 				String.format("Key length should be <= %d bytes for key = %s", MAX_KEY_LENGTH, longKey)));
 		
-		converter.writeTo(new ByteArrayOutputStream(), Request.get(longKey));
+		converter.writeTo(new ByteArrayOutputStream(), Request.withKey(Command.GET, longKey));
 	}
 
 	private String generateKeyWithLength(int length) {
@@ -95,32 +96,32 @@ public class RequestConverterTest {
 	}
 	
 	@Test
-	public void readsEmptyRequest() throws Exception {
-		Request clearRequest = Request.clear();
+	public void shouldAllowToReadEmptyRequest() throws Exception {
+		Request clearRequest = Request.empty(Command.CLEAR);
 		assertReadsRequestCorrectly(clearRequest);
 	}
 	
 	@Test
-	public void readsRequestWithKey() throws Exception {
-		Request getRequest = Request.get(KEY);
+	public void shouldAllowToReadRequestWithKey() throws Exception {
+		Request getRequest = Request.withKey(Command.GET, KEY);
 		assertReadsRequestCorrectly(getRequest);
 	}
 	
 	@Test
-	public void readsRequestWithData() throws Exception {
-		Request putRequest = Request.put(KEY, DATA);
+	public void shouldAllowToReadRequestWithData() throws Exception {
+		Request putRequest = Request.withKeyAndData(Command.PUT, KEY, DATA, null);
 		assertReadsRequestCorrectly(putRequest);
 	}
 	
 	@Test
-	public void readsRequestWithTtl() throws Exception {
-		Request putRequestWithTtl = Request.put(KEY, DATA, TTL);
+	public void shouldAllowToReadRequestWithTtl() throws Exception {
+		Request putRequestWithTtl = Request.withKeyAndData(Command.PUT, KEY, DATA, TTL);
 		assertReadsRequestCorrectly(putRequestWithTtl);
 	}
 	
 	@Test
-	public void throwsJMemcachedExceptionIfInvalidVersionDuringRequestReading() throws Exception {
-		ByteArrayInputStream input = createInputStreamWithInvalidVersionFor(Request.clear());
+	public void shouldNotAllowToReadRequestWithUnsupportedVersion() throws Exception {
+		ByteArrayInputStream input = createInputStreamWithUnsupportedVersionFor(Request.empty(Command.CLEAR));
 		expected.expect(JMemcachedException.class);
 		
 		converter.readFrom(input);
@@ -140,7 +141,7 @@ public class RequestConverterTest {
 		return new ByteArrayInputStream(output.toByteArray());
 	}
 	
-	private ByteArrayInputStream createInputStreamWithInvalidVersionFor(Request request) throws IOException {
+	private ByteArrayInputStream createInputStreamWithUnsupportedVersionFor(Request request) throws IOException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		converter.writeTo(output, request);
 		byte[] content = output.toByteArray();

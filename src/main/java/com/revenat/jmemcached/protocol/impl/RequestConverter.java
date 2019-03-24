@@ -52,7 +52,7 @@ public class RequestConverter extends AbstractPackageConverter implements Reques
 		dataOutput.flush();
 	}
 
-	protected int generateFlagsFor(Request request) {
+	private int generateFlagsFor(Request request) {
 		byte requestFlags = 0b00000000;
 		
 		if (request.hasKey()) {
@@ -68,13 +68,13 @@ public class RequestConverter extends AbstractPackageConverter implements Reques
 		return requestFlags;
 	}
 
-	protected void writeKeyIfPresent(Request request, DataOutputStream dataOutput) throws IOException {
+	private void writeKeyIfPresent(Request request, DataOutputStream dataOutput) throws IOException {
 		if (request.hasKey()) {
 			writeKey(dataOutput, request);
 		}
 	}
 	
-	protected void writeKey(DataOutputStream dataOutput, Request request) throws IOException {
+	private void writeKey(DataOutputStream dataOutput, Request request) throws IOException {
 		byte[] key = request.getKey().getBytes(StandardCharsets.US_ASCII);
 		if (key.length > MAX_KEY_LENGTH) {
 			throw new JMemcachedException("Key length should be <= "+ MAX_KEY_LENGTH +" bytes for key = " + request.getKey());
@@ -83,13 +83,13 @@ public class RequestConverter extends AbstractPackageConverter implements Reques
 		dataOutput.write(key);
 	}
 
-	protected void writeTtlIfPresent(Request request, DataOutputStream dataOutput) throws IOException {
+	private void writeTtlIfPresent(Request request, DataOutputStream dataOutput) throws IOException {
 		if (request.hasTtl()) {
 			dataOutput.writeLong(request.getTtl());
 		}
 	}
 
-	protected void writeDataIfPresent(Request request, DataOutputStream dataOutput) throws IOException {
+	private void writeDataIfPresent(Request request, DataOutputStream dataOutput) throws IOException {
 		if (request.hasData()) {
 			dataOutput.writeInt(request.getData().length);
 			dataOutput.write(request.getData());
@@ -109,7 +109,7 @@ public class RequestConverter extends AbstractPackageConverter implements Reques
 		return buildRequest(cmdByte, flagByte, dataInput);
 	}
 
-	protected Request buildRequest(byte cmdByte, byte flagByte, DataInputStream dataInput) throws IOException {
+	private Request buildRequest(byte cmdByte, byte flagByte, DataInputStream dataInput) throws IOException {
 		boolean hasKey = (flagByte & KEY_FLAG) != 0;
 		boolean hasTtl = (flagByte & TTL_FLAG) != 0;
 		boolean hasData = (flagByte & DATA_FLAG) != 0;
@@ -133,17 +133,17 @@ public class RequestConverter extends AbstractPackageConverter implements Reques
 		int dataLength = dataInput.readInt();
 		byte[] data = IOUtils.readFully(dataInput, dataLength);
 		
-		return new Request(Command.valueOf(cmdByte), new String(keyValue, StandardCharsets.US_ASCII), data, ttl);
+		return Request.withKeyAndData(Command.valueOf(cmdByte), new String(keyValue, StandardCharsets.US_ASCII), data, ttl);
 	}
 
 	protected Request buildRequestWithKey(byte cmdByte, DataInputStream dataInput) throws IOException {
 		byte keyLength = dataInput.readByte();
 		byte[] keyValue = IOUtils.readFully(dataInput, keyLength);
 		
-		return new Request(Command.valueOf(cmdByte), new String(keyValue, StandardCharsets.US_ASCII));
+		return Request.withKey(Command.valueOf(cmdByte), new String(keyValue, StandardCharsets.US_ASCII));
 	}
 	
 	protected Request buildEmptyRequest(byte cmdByte) {
-		return new Request(Command.valueOf(cmdByte));
+		return Request.empty(Command.valueOf(cmdByte));
 	}
 }

@@ -30,7 +30,7 @@ public class ResponseConverterTest {
 	}
 
 	@Test
-	public void writesResponseWitoutData() throws Exception {
+	public void shouldAllowToWriteResponseWithoutData() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		converter.writeTo(out, EMPTY_RESPONSE);
@@ -39,7 +39,7 @@ public class ResponseConverterTest {
 	}
 
 	@Test
-	public void writesResponseWithData() throws Exception {
+	public void shouldAllowToWriteResponseWithData() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		converter.writeTo(out, RESPONSE_WITH_DATA);
@@ -48,7 +48,7 @@ public class ResponseConverterTest {
 	}
 
 	@Test
-	public void readsResponseWithoutData() throws Exception {
+	public void shouldAllowToReadResponseWithoutData() throws Exception {
 		ByteArrayInputStream input = createInputStreamFor(EMPTY_RESPONSE);
 
 		Response result = converter.readFrom(input);
@@ -57,7 +57,7 @@ public class ResponseConverterTest {
 	}
 	
 	@Test
-	public void readsResponseWithData() throws Exception {
+	public void shouldAllowToReadResponseWithData() throws Exception {
 		ByteArrayInputStream input = createInputStreamFor(RESPONSE_WITH_DATA);
 
 		Response result = converter.readFrom(input);
