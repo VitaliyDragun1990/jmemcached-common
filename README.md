@@ -1,2 +1,2 @@
 # jmemcached-common
-Maven module that contains common components for the JMemcached application
+Maven module that contains protocol-related components for the JMemcached application
