@@ -68,14 +68,14 @@ public class ObjectConverterTest {
 
 	@Test
 	public void shouldReturnEmptyOptionalIfDeserializeEmptyData() throws Exception {
-		Optional<Object> optional = converter.fromByteArray(new byte[0]);
+		Optional<Serializable> optional = converter.fromByteArray(new byte[0]);
 
 		assertFalse("Optional should be empty", optional.isPresent());
 	}
 
 	@Test
 	public void shouldReturnEmptyOptionalIfDeserializeNull() throws Exception {
-		Optional<Object> optional = converter.fromByteArray(null);
+		Optional<Serializable> optional = converter.fromByteArray(null);
 
 		assertFalse("Optional should be empty", optional.isPresent());
 	}
@@ -84,7 +84,7 @@ public class ObjectConverterTest {
 	public void shouldAllowToGetOptionalWithDeserializedObject() throws Exception {
 		byte[] data = serializeToArray(SERIALIZABLE);
 
-		Optional<Object> optional = converter.fromByteArray(data);
+		Optional<Serializable> optional = converter.fromByteArray(data);
 		Object deserialized = optional.get();
 		assertThat(deserialized, equalTo(SERIALIZABLE));
 	}

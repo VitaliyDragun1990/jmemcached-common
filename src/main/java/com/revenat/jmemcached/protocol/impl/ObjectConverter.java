@@ -66,7 +66,7 @@ public class ObjectConverter implements ObjectSerializer, ObjectDeserializer {
 	 * @throws JMemcachedException if some error occurs during deserialization.
 	 */
 	@Override
-	public Optional<Object> fromByteArray(byte[] data) {
+	public Optional<Serializable> fromByteArray(byte[] data) {
 		if (data == null || data.length == 0) {
 			return Optional.empty();
 		}
@@ -74,11 +74,12 @@ public class ObjectConverter implements ObjectSerializer, ObjectDeserializer {
 		return deserialize(data);
 	}
 
-	private Optional<Object> deserialize(byte[] data) {
+	private Optional<Serializable> deserialize(byte[] data) {
 		try {
 			ObjectInputStream objectInput = new ObjectInputStream(new ByteArrayInputStream(data));
 
-			return Optional.of(objectInput.readObject());
+			Serializable deserializedObject = (Serializable) objectInput.readObject();
+			return Optional.of(deserializedObject);
 		} catch (Exception e) {
 			throw new JMemcachedException("Can not deserialize object from byte array: " + e.getMessage(), e);
 		}

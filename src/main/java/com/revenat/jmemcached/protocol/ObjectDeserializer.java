@@ -1,5 +1,6 @@
 package com.revenat.jmemcached.protocol;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 /**
@@ -18,5 +19,5 @@ public interface ObjectDeserializer {
 	 * @param data array of bytes to deserialize object from
 	 * @return {@link Optional} with result of the deserializing operation.
 	 */
-	Optional<Object> fromByteArray(byte[] data);
+	Optional<Serializable> fromByteArray(byte[] data);
 }
